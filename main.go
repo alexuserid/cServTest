@@ -1,7 +1,6 @@
 package main
 
 import (
-	anstest "mysrc/cServTest/anstest"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -10,15 +9,15 @@ import (
 )
 
 var (
-	link = flag.String("l", "http://localhost:8080", "Server link for test")
+	address = flag.String("l", "http://localhost:8080", "Server address for test")
 )
 
 func main() {
 	flag.Parse()
-	url := *link
+	url := *address
 
-	for i, v := range anstest.Mass {
-		resp, err := http.Get(url + "?s=" + v.S)
+	for i, v := range mass {
+		resp, err := http.Get(url + "?s=" + v.s)
 		if err != nil {
 			log.Fatalf("http.Get: %v", err)
 		}
@@ -28,8 +27,10 @@ func main() {
 		}
 		resp.Body.Close()
 
-		if string(bytes) != v.N+"\n" {
-			fmt.Printf("Wrong answer. Test %d: %s.\nServer answer is: %sRight answer is: %s\n", i, v.S, string(bytes), v.N)
+		if string(bytes) != v.n+"\n" {
+			fmt.Printf(`Wrong answer. Test %d: %s.
+			Server answer is: %sRight answer is: %s
+			`, i, v.s, string(bytes), v.n)
 			return
 		}
 	}
