@@ -12,18 +12,17 @@ import (
 
 var (
 	address   = flag.String("l", "http://localhost:8080", "Server address for test")
-	checkTime = flag.Duration("t", 200*time.Millisecond, "Test durationi in millisecond")
+	checkTime = flag.Duration("t", 3*time.Second, "Test duration")
 )
 
 func main() {
 	flag.Parse()
-	url := *address
 	tstart := time.Now()
 	var i int
 
 	for ; time.Since(tstart) < *checkTime; i++ {
 		for j, v := range mass {
-			resp, err := http.Get(url + "?s=" + v.s)
+			resp, err := http.Get(*address + "?s=" + v.s)
 			if err != nil {
 				log.Fatalf("http.Get: %v", err)
 			}
@@ -34,14 +33,10 @@ func main() {
 
 			ans := strings.TrimSpace(string(bytes))
 			if string(ans) != v.n {
-				fmt.Printf(`Wrong answer. Test %d: %s.
-Server answer is: %q
-Right answer is: %s
-`, j, v.s, string(bytes), v.n)
+				fmt.Printf("Wrong answer. Test %d: %q.\n Server answer is: %q.\n Right answer is: %s\n", j, v.s, string(bytes), v.n)
 				return
 			}
 		}
 	}
-	fmt.Printf("Timeout. Test was repited %d times. Duration: %v.", i, checkTime)
-	return
+	fmt.Printf("Timeout. Test was repited %d times. Duration %v. %v rps.\n", i, checkTime, i/int(checkTime.Seconds()))
 }
