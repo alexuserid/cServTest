@@ -18,7 +18,7 @@ var (
 func main() {
 	flag.Parse()
 	tstart := time.Now()
-	var i int
+	var i, rps int
 
 	for ; time.Since(tstart) < *checkTime; i++ {
 		for j, v := range mass {
@@ -36,7 +36,8 @@ func main() {
 				fmt.Printf("Wrong answer. Test %d: %q.\n Server answer is: %q.\n Right answer is: %s\n", j, v.s, string(bytes), v.n)
 				return
 			}
+			rps++
 		}
 	}
-	fmt.Printf("Timeout. Test was repited %d times. Duration %v. %v rps.\n", i, checkTime, i/int(checkTime.Seconds()))
+	fmt.Printf("Timeout. Test was repeated %d times. Duration %v. %v rps.\n", i, checkTime, float64(rps)/checkTime.Seconds())
 }
