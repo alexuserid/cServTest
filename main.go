@@ -18,35 +18,30 @@ var (
 func main() {
 	flag.Parse()
 	url := *address
+	tstart := time.Now()
+	var i int
 
-	timeout := time.After(*checkTime)
-	for i := 0; ; i++ {
+	for ; time.Since(tstart) < *checkTime; i++ {
+		for j, v := range mass {
+			resp, err := http.Get(url + "?s=" + v.s)
+			if err != nil {
+				log.Fatalf("http.Get: %v", err)
+			}
+			bytes, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Fatalf("ioutil.ReadAll: %v", err)
+			}
 
-		select {
-		case <-timeout:
-			fmt.Printf("Timeout. Test was repited %d times. Duration: %v.", i, checkTime)
-			return
-		default:
-			for j, v := range mass {
-				resp, err := http.Get(url + "?s=" + v.s)
-				if err != nil {
-					log.Fatalf("http.Get: %v", err)
-				}
-				bytes, err := ioutil.ReadAll(resp.Body)
-				if err != nil {
-					log.Fatalf("ioutil.ReadAll: %v", err)
-				}
-				resp.Body.Close()
-
-				ans := strings.TrimSpace(string(bytes))
-				if string(ans) != v.n {
-					fmt.Printf(`Wrong answer. Test %d: %s.
+			ans := strings.TrimSpace(string(bytes))
+			if string(ans) != v.n {
+				fmt.Printf(`Wrong answer. Test %d: %s.
 Server answer is: %q
 Right answer is: %s
 `, j, v.s, string(bytes), v.n)
-					return
-				}
+				return
 			}
 		}
 	}
+	fmt.Printf("Timeout. Test was repited %d times. Duration: %v.", i, checkTime)
+	return
 }
